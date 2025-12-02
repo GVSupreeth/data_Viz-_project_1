@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Movie Analytics Dashboard</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-main: #050509;
+            --bg-panel: #111018;
+            --bg-panel-alt: #151320;
+            --accent: #f5c518;        /* IMDb-style yellow */
+            --accent-red: #e63946;    /* punchy red */
+            --text-main: #f5f5f5;
+            --text-muted: #b7b7c3;
+            --border-subtle: #2b2935;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: radial-gradient(circle at top, #1f1b2e 0, #050509 45%);
+            color: var(--text-main);
+            font-family: "Poppins", sans-serif;
+        }
+
+        /* Top banner / hero */
+        .hero {
+            padding: 32px 7vw 24px 7vw;
+            border-bottom: 1px solid #181621;
+            background: linear-gradient(135deg, rgba(245,197,24,0.08), rgba(0,0,0,0.9));
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.1fr);
+            gap: 32px;
+            align-items: center;
+        }
+
+        .hero-title {
+            font-size: 38px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .hero-highlight {
+            color: var(--accent);
+        }
+
+        .hero-subtitle {
+            color: var(--text-muted);
+            margin-top: 12px;
+            line-height: 1.6;
+            max-width: 640px;
+            font-size: 15px;
+        }
+
+        .hero-badge-row {
+            margin-top: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .hero-badge {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            border-radius: 999px;
+            padding: 6px 12px;
+            border: 1px solid rgba(245,197,24,0.5);
+            color: var(--accent);
+        }
+
+        /* Stat cards on the right */
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .stat-card {
+            background: radial-gradient(circle at top left, rgba(245,197,24,0.22), rgba(0,0,0,0.9));
+            border-radius: 12px;
+            padding: 14px 16px;
+            border: 1px solid rgba(245,197,24,0.3);
+            box-shadow: 0 0 18px rgba(0,0,0,0.5);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .stat-note {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Main content container */
+        .main {
+            padding: 32px 7vw 40px 7vw;
+        }
+
+        .section {
+            background: linear-gradient(135deg, var(--bg-panel), var(--bg-panel-alt));
+            border-radius: 14px;
+            padding: 22px 24px 26px 24px;
+            margin-bottom: 32px;
+            border: 1px solid var(--border-subtle);
+            box-shadow: 0 14px 30px rgba(0,0,0,0.45);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .section-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 999px;
+            background: radial-gradient(circle at 30% 30%, var(--accent), #c48a0a);
+            color: #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 15px;
+            box-shadow: 0 0 18px rgba(245,197,24,0.65);
+        }
+
+        .section-title-block {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .section-subtitle {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: var(--text-muted);
+        }
+
+        .section-grid {
+            margin-top: 14px;
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.8fr);
+            gap: 22px;
+            align-items: stretch;
+        }
+
+        .section-text {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
+        .callout {
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(245,197,24,0.4);
+            background: rgba(245,197,24,0.06);
+            font-size: 12px;
+        }
+
+        .pill-row {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .pill {
+            font-size: 11px;
+            padding: 5px 10px;
+            border-radius: 999px;
+            border: 1px solid #373349;
+            background: #1d1a2a;
+            color: #d0cfe6;
+        }
+
+        .pill span {
+            color: var(--accent);
+        }
+
+        /* Chart wrapper */
+        .chart-frame {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #272336;
+            background: radial-gradient(circle at top, #222035, #050509);
+        }
+
+        .chart-header {
+            position: absolute;
+            top: 8px;
+            left: 12px;
+            padding: 4px 9px;
+            border-radius: 999px;
+            background: rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.12);
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: #ccc;
+        }
+
+        iframe {
+            width: 100%;
+            border: none;
+            border-radius: 10px;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 16px 0 26px 0;
+            color: #77758a;
+            font-size: 12px;
+        }
+
+        .footer span {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .footer a {
+            color: #aaa8c2;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            color: #ffffff;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .hero-grid {
+                grid-template-columns: 1fr;
+            }
+            .hero-stats {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .section-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .hero {
+                padding: 24px 16px;
+            }
+            .main {
+                padding: 24px 16px 32px 16px;
+            }
+            .section {
+                padding: 18px 16px 20px 16px;
+            }
+            .hero-title {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HERO / TITLE -->
+    <header class="hero">
+        <div class="hero-grid">
+            <div>
+                <div class="hero-title">
+                    Studio & Global <span class="hero-highlight">Movie Analytics</span>
+                </div>
+                <p class="hero-subtitle">
+                    A cinematic view of how major production houses perform over time
+                    and which countries deliver the highest-rated films.  
+                    Interact with the visuals below to explore trends, rankings, and geospatial patterns
+                    from the last decade of movie data.
+                </p>
+
+                <div class="hero-badge-row">
+                    <div class="hero-badge">Last 10 Years</div>
+                    <div class="hero-badge">Box Office • Ratings • Hits</div>
+                    <div class="hero-badge">Studios • Genres • Countries</div>
+                </div>
+            </div>
+
+            <div class="hero-stats">
+                <div class="stat-card">
+                    <div class="stat-label">Time Window</div>
+                    <div class="stat-value">2015–2024</div>
+                    <div class="stat-note">Filtered to the last decade of releases.</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Top Studios</div>
+                    <div class="stat-value">10</div>
+                    <div class="stat-note">Ranked per year by KPI (Revenue, ROI, etc.).</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Global Coverage</div>
+                    <div class="stat-value">Countries</div>
+                    <div class="stat-note">Choropleth map aggregates ratings by country-year.</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Key Metrics</div>
+                    <div class="stat-value">5</div>
+                    <div class="stat-note">Revenue, ROI, Avg Rating, Hits, Volume.</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+
+        <!-- SECTION 1: BUMP + GENRES -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">01</div>
+                <div class="section-title-block">
+                    <div class="section-title">Studio Trajectories & Genre Output</div>
+                    <div class="section-subtitle">Temporal performance & content strategy</div>
+                </div>
+            </div>
+
+            <div class="section-grid">
+                <div class="section-text">
+                    <p>
+                        This combined visual answers:
+                        <br><b>“Which studios stay on top over time, and how does their genre focus evolve?”</b>
+                    </p>
+                    <p>
+                        The <b>bump chart</b> tracks how each major studio’s rank changes year by year
+                        based on different KPIs. Use the dropdown inside the chart to switch between:
+                    </p>
+                    <div class="pill-row">
+                        <div class="pill"><span>Revenue</span> — total box office by year</div>
+                        <div class="pill"><span>ROI</span> — return on investment</div>
+                        <div class="pill"><span>Avg Rating</span> — audience/critic quality</div>
+                        <div class="pill"><span>Hits</span> — count of high-rated titles</div>
+                        <div class="pill"><span>Volume</span> — number of movies</div>
+                    </div>
+
+                    <div class="callout">
+                        💡 <b>How to read this:</b><br>
+                        • Lines near rank 1 indicate consistently dominant studios.<br>
+                        • Big rank swings suggest risky strategies or breakout years.<br>
+                        • Use the inverted genre bars to see <b>which types of films</b> are driving output each year.
+                    </div>
+                </div>
+
+                <div class="chart-frame">
+                    <div class="chart-header">FIGURE 1 · Studio ranking & genre mix</div>
+                    <!-- Make sure this filename matches your actual file -->
+                    <iframe src="studio_genre_dashboard.html" height="900"></iframe>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- SECTION 2: MAP -->
+        <section class="section">
+            <div class="section-header">
+                <div class="section-number">02</div>
+                <div class="section-title-block">
+                    <div class="section-title">Average Rating by Country (Animated)</div>
+                    <div class="section-subtitle">Geospatial quality patterns</div>
+                </div>
+            </div>
+
+            <div class="section-grid" style="grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.6fr);">
+                <div class="chart-frame">
+                    <div class="chart-header">FIGURE 2 · Global movie quality map</div>
+                    <!-- Make sure this filename matches your actual file -->
+                    <iframe src="movie_country_ratings_map.html" height="650"></iframe>
+                </div>
+
+                <div class="section-text">
+                    <p>
+                        This animated choropleth map focuses on the question:
+                        <br><b>“Which countries produce the best-rated films year after year?”</b>
+                    </p>
+                    <p>
+                        For each year in the last decade, countries are colored by
+                        <b>average movie rating</b>. Darker or more saturated colors
+                        indicate stronger overall performance.
+                    </p>
+
+                    <div class="callout">
+                        🎛 <b>Interaction tips:</b><br>
+                        • Use the animation slider to scrub through the years.<br>
+                        • Hover a country to see:
+                        <ul style="margin: 8px 0 4px 18px; padding-left: 0; color: var(--text-muted);">
+                            <li>Average rating</li>
+                            <li>Number of movies released</li>
+                            <li>Top languages used</li>
+                            <li>Top 3 contributing studios</li>
+                        </ul>
+                    </div>
+
+                    <p>
+                        Combined with the studio bump chart above, this map helps stakeholders decide:
+                        <br><b>Where are the most reliable “quality hubs” in global cinema?</b>  
+                        and <b>Which regions might be under-explored but promising?</b>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        Built by <span>Supreeth GV</span> · Powered by Plotly & TMDB data · 
+        <a href="#">Back to top ↑</a>
+    </footer>
+
+</body>
+</html>
